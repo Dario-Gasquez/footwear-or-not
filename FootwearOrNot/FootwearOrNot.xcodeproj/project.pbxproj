@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A36BF51923A161490035278C /* MobileNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = A36BF51823A161490035278C /* MobileNet.mlmodel */; };
+		A36BF51D23A197FF0035278C /* Resnet50.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = A36BF51C23A197FF0035278C /* Resnet50.mlmodel */; };
 		A3EAC36123A068D000C04590 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EAC36023A068D000C04590 /* AppDelegate.swift */; };
 		A3EAC36323A068D000C04590 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EAC36223A068D000C04590 /* ViewController.swift */; };
 		A3EAC36623A068D000C04590 /* Storyboarded.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EAC36523A068D000C04590 /* Storyboarded.swift */; };
@@ -30,6 +32,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A36BF51823A161490035278C /* MobileNet.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = MobileNet.mlmodel; sourceTree = "<group>"; };
+		A36BF51C23A197FF0035278C /* Resnet50.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = Resnet50.mlmodel; sourceTree = "<group>"; };
 		A3EAC35D23A068D000C04590 /* FootwearOrNot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FootwearOrNot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3EAC36023A068D000C04590 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A3EAC36223A068D000C04590 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -64,6 +68,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A36BF51723A161200035278C /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A36BF51C23A197FF0035278C /* Resnet50.mlmodel */,
+				A36BF51823A161490035278C /* MobileNet.mlmodel */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		A3EAC35323A068D000C04590 = {
 			isa = PBXGroup;
 			children = (
@@ -85,6 +98,7 @@
 		A3EAC35F23A068D000C04590 /* FootwearOrNot */ = {
 			isa = PBXGroup;
 			children = (
+				A36BF51723A161200035278C /* Models */,
 				A3EAC36023A068D000C04590 /* AppDelegate.swift */,
 				A3EAC36223A068D000C04590 /* ViewController.swift */,
 				A3EAC36C23A068D000C04590 /* .swiftlint.yml */,
@@ -248,8 +262,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A36BF51D23A197FF0035278C /* Resnet50.mlmodel in Sources */,
 				A3EAC36923A068D000C04590 /* Coordinator.swift in Sources */,
 				A3EAC36323A068D000C04590 /* ViewController.swift in Sources */,
+				A36BF51923A161490035278C /* MobileNet.mlmodel in Sources */,
 				A3EAC36123A068D000C04590 /* AppDelegate.swift in Sources */,
 				A3EAC36B23A068D000C04590 /* MainCoordinator.swift in Sources */,
 				A3EAC36623A068D000C04590 /* Storyboarded.swift in Sources */,

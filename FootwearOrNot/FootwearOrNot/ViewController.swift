@@ -27,6 +27,46 @@ class ViewController: UIViewController, Storyboarded {
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var footwearLabel: UILabel!
     @IBOutlet private weak var observationsLabel: UILabel!
+    @IBOutlet private weak var modelSelectionControl: UISegmentedControl!
+
+
+    private lazy var mobileNetRequest: VNCoreMLRequest = {
+        do {
+            let model = try VNCoreMLModel(for: MobileNet().model)
+            let mobileNetRequest = VNCoreMLRequest(model: model)
+            mobileNetRequest.imageCropAndScaleOption = .centerCrop
+            return mobileNetRequest
+        } catch {
+            fatalError("Failed to load mobileNet ML model: \(error)")
+        }
+    }()
+
+
+    private lazy var resnet50Request: VNCoreMLRequest = {
+        do {
+            let model = try VNCoreMLModel(for: Resnet50().model)
+            let resnetRequest = VNCoreMLRequest(model: model)
+            resnetRequest.imageCropAndScaleOption = .centerCrop
+            return resnetRequest
+        } catch {
+            fatalError("Failed to load resNet ML model: \(error)")
+        }
+    }()
+
+
+    /// Holds the request for the different model types: Vision, MobileNet, Resnet50, etcetera
+    private lazy var requests: [VNRequest] = [VNClassifyImageRequest(), mobileNetRequest, resnet50Request]
+
+
+    @IBAction func didSelectNewModel(_ sender: UISegmentedControl) {
+        guard let image = imageView.image else {
+            observationsLabel.text = "Please, choose an image first.."
+            return
+        }
+
+        updateClassifications(for: image)
+    }
+
 
     @IBAction private func takePicture(_ sender: UIBarButtonItem) {
         let picker = UIImagePickerController()
@@ -51,10 +91,17 @@ class ViewController: UIViewController, Storyboarded {
             fatalError("Can't create CIImage from \(image)")
         }
 
+        guard modelSelectionControl.selectedSegmentIndex < requests.count else {
+            print(">>>> WARNING: selected model index too high <<<<<<")
+            observationsLabel.text = "Sorry, selected model is not available yet"
+            return
+        }
+
+        let request = requests[modelSelectionControl.selectedSegmentIndex]
+
         // Classify the images
         DispatchQueue.global(qos: .userInitiated).async {
             let handler = VNImageRequestHandler(ciImage: ciImage, orientation: orientation)
-            let request = VNClassifyImageRequest()
             do {
                 try handler.perform([request])
                 self.process(request: request)
@@ -65,35 +112,32 @@ class ViewController: UIViewController, Storyboarded {
     }
 
 
-    private func process(request: VNRequest) {
+    private func process(request: VNRequest, error: Error? = nil) {
         guard let observations = request.results as? [VNClassificationObservation] else {
             return
         }
 
-        let categories = observations.filter { $0.hasMinimumRecall(0.01, forPrecision: 0.9) }
-        let searchTerms = observations.filter { $0.hasMinimumPrecision(0.01, forRecall: 0.7) }
+        let categoriesAbove90 = observations.filter { $0.confidence > 0.9 } //{ $0.hasMinimumRecall(0.01, forPrecision: 0.9) }
+        let highestFiveCategories = observations[0...4]
 
-        let footwearTerms: Set = ["footwear", "shoes", "sneaker"]
+        let footwearTerms: Set = ["footwear", "shoes", "sneaker", "running shoe"]
         var isFootwear = false
-        for category in categories {
+        for category in categoriesAbove90 {
             if footwearTerms.contains(category.identifier) {
                 isFootwear = true
+                break
             }
         }
 
-        let categoriesText = categories.reduce("Categories for precision: 0.9 \n") { (result, observation) -> String in
+        let categoriesText = highestFiveCategories.reduce("Highest 5 categories\n") { (result, observation) -> String in
             return result + "Category: \(observation.identifier). Confidence: \(observation.confidence) \n"
-        }
-
-        let searchTermsText = searchTerms.reduce("\nSearch Term for recall: 0.7 \n") { (result, observation) -> String in
-            return result + "Term: \(observation.identifier). Confidence: \(observation.confidence) \n"
         }
 
         DispatchQueue.main.async {
             self.footwearLabel.isHidden = false
             self.footwearLabel.text = isFootwear ? "Footwear" : "NOT Footwear"
             self.footwearLabel.textColor = isFootwear ? .green : .red
-            self.observationsLabel.text = categoriesText + searchTermsText
+            self.observationsLabel.text = categoriesText
         }
     }
 }
@@ -108,7 +152,6 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         }
 
         imageView.image = uiImage
-
         updateClassifications(for: uiImage)
     }
 }
