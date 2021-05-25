@@ -21,7 +21,7 @@ extension Storyboarded where Self: UIViewController {
         // instantantiate a MyViewController from the Main storyboard
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
 
-        //swiftlint:disable:next force_cast
+        // swiftlint:disable:next force_cast
         return storyboard.instantiateViewController(withIdentifier: className) as! Self
     }
 }

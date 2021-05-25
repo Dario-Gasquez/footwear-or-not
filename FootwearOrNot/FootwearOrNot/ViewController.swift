@@ -31,32 +31,31 @@ class ViewController: UIViewController, Storyboarded {
 
 
     private lazy var mobileNetRequest: VNCoreMLRequest = {
-        do {
-            let model = try VNCoreMLModel(for: MobileNet().model)
-            let mobileNetRequest = VNCoreMLRequest(model: model)
-            mobileNetRequest.imageCropAndScaleOption = .centerCrop
-            return mobileNetRequest
-        } catch {
-            fatalError("Failed to load mobileNet ML model: \(error)")
-        }
+        return generateCoreMLRequest(forModel: MobileNet().model)
+
     }()
 
 
     private lazy var resnet50Request: VNCoreMLRequest = {
-        do {
-            let model = try VNCoreMLModel(for: Resnet50().model)
-            let resnetRequest = VNCoreMLRequest(model: model)
-            resnetRequest.imageCropAndScaleOption = .centerCrop
-            return resnetRequest
-        } catch {
-            fatalError("Failed to load resNet ML model: \(error)")
-        }
+        return generateCoreMLRequest(forModel: Resnet50().model)
+
     }()
 
 
+    private func generateCoreMLRequest(forModel mlModel: MLModel) -> VNCoreMLRequest {
+        do {
+            let model = try VNCoreMLModel(for: mlModel)
+            let coreMLRequest = VNCoreMLRequest(model: model)
+            coreMLRequest.imageCropAndScaleOption = .centerCrop
+            return coreMLRequest
+        } catch {
+            fatalError("Failed to load ML model: \(error)")
+        }
+
+    }
+
     /// Holds the request for the different model types: Vision, MobileNet, Resnet50, etcetera
     private lazy var requests: [VNRequest] = [VNClassifyImageRequest(), mobileNetRequest, resnet50Request]
-
 
     @IBAction func didSelectNewModel(_ sender: UISegmentedControl) {
         guard let image = imageView.image else {
@@ -117,13 +116,13 @@ class ViewController: UIViewController, Storyboarded {
             return
         }
 
-        let categoriesAbove90 = observations.filter { $0.confidence > 0.9 } //{ $0.hasMinimumRecall(0.01, forPrecision: 0.9) }
-        let highestFiveCategories = observations[0...4]
+        let categoriesAbove90 = observations.filter { $0.confidence > 0.9 } // { $0.hasMinimumRecall(0.01, forPrecision: 0.9) }
+        let highestFiveCategories = observations.prefix(5)
 
         let footwearTerms: Set = ["footwear", "shoes", "sneaker", "running shoe"]
         var isFootwear = false
         for category in categoriesAbove90 {
-            if footwearTerms.contains(category.identifier) {
+            if footwearTerms.contains(category.identifier.lowercased()) {
                 isFootwear = true
                 break
             }
